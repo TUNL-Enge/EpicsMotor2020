@@ -1,0 +1,45 @@
+#./Qt/Tools/QtCreator/bin/qtcreator
+
+#check usb connection:
+
+lsusb
+
+#you should see a device like Prolific Technology, Inc. PL2303 Serial Port
+
+#give permission to usb: 
+
+crw-rw---- 1 root dialout 188, 0 5 apr 23.01 ttyUSB0
+sudo usermod -a -G dialout enge #enge is your username
+sudo chmod a+rw /dev/ttyUSB0
+
+#then log out and sign in again  
+
+#It may not be USB0, depending on which USB port you plugged it in. 
+
+dmesg
+
+#command can be used to see which port it's in.
+
+untick 'shadow build' to apply changes to ui
+
+fix $(Motor) path in .substitution file
+
+In epics after iocInit(): asynReport 10 show if it is connected.
+
+delete the buggy lines :
+
+recordtype(scalcout) {
+}
+device(scalcout, INST_IO, devscalcoutStream, "stream")
+
+in (MyMotor).dbd, everytime you 'make rebuild' your IOC App.
+
+chang int autoPower = 1 in asynMotorController.cpp (I changed two files with the same name in synApp/support/motor-X-X)
+
+add the following:
+  setIntegerParam(pC_->motorPowerAutoOnOff_, 1);
+  setDoubleParam(pC_->motorPowerOnDelay_, 0.0);
+  setDoubleParam(pC_->motorPowerOffDelay_, 0.0);
+in MCB4BDriver.cpp: asynStatus MCB4BAxis::poll(bool *moving), at the beginning
+
+add #include "asynMotorController.h" to (MyMotor)Main.cpp
