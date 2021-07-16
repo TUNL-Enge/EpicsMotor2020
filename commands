@@ -1,40 +1,47 @@
-#./Qt/Tools/QtCreator/bin/qtcreator
+Motor IOC set up notes  --Kaixin Song, 2021 summer
 
-#check usb connection:
+# check usb connection:
 
 lsusb
 
-#you should see a device like Prolific Technology, Inc. PL2303 Serial Port
+# you should see a device like Prolific Technology, Inc. PL2303 Serial Port. That's the usb to RS232 cable.
 
-#give permission to usb: 
+# give permission to usb, might be helpful:
 
 crw-rw---- 1 root dialout 188, 0 5 apr 23.01 ttyUSB0
-sudo usermod -a -G dialout enge #enge is your username
+sudo usermod -a -G dialout enge # enge is replaced by your username
 sudo chmod a+rw /dev/ttyUSB0
 
 #then log out and sign in again  
-
-#It may not be USB0, depending on which USB port you plugged it in. 
+#It may not be USB0, depending on which USB port you plugged it in. type:
 
 dmesg
 
-#command can be used to see which port it's in.
+# to check.
 
 untick 'shadow build' to apply changes to ui
 
 fix $(Motor) path in .substitution file
 
-In epics after iocInit(): asynReport 10 show if it is connected.
+In epics after iocInit(): type
 
-delete the buggy lines :
+asynReport 10
+
+to show if it is connected.
+
+
+For my IOC, after compilation and running st.cmd, it reports a bug(scroll up to see it). 
+To resolve that, in MyMotor.dbd (your_IOC_name.dbd)in your IOC folder, delete these buggy lines :
 
 recordtype(scalcout) {
 }
 device(scalcout, INST_IO, devscalcoutStream, "stream")
 
-in (MyMotor).dbd, everytime you 'make rebuild' your IOC App.
+Do this everytime you 'make rebuild' your IOC App. The line number changes but is displayed when you run it.
 
-chang int autoPower = 1 in asynMotorController.cpp (I changed two files with the same name in synApp/support/motor-X-X)
+I did the following when I messed up with a board with a physically bad swiching while I didn't realize the problem. Hope that you don't have to do it:
+
+change to 'int autoPower = 1' in asynMotorController.cpp (I changed two files with the same name in synApp/support/motor-X-X)
 
 add the following:
   setIntegerParam(pC_->motorPowerAutoOnOff_, 1);
